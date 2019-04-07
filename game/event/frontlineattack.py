@@ -37,7 +37,7 @@ class FrontlineAttackEvent(Event):
     def __str__(self):
         return "Frontline attack"
 
-    def is_successfull(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing):
         alive_attackers = sum([v for k, v in debriefing.alive_units.get(self.attacker_name, {}).items() if db.unit_task(k) == PinpointStrike])
         alive_defenders = sum([v for k, v in debriefing.alive_units.get(self.defender_name, {}).items() if db.unit_task(k) == PinpointStrike])
         attackers_success = (float(alive_attackers) / (alive_defenders + 0.01)) > self.SUCCESS_FACTOR
@@ -50,12 +50,12 @@ class FrontlineAttackEvent(Event):
         super(FrontlineAttackEvent, self).commit(debriefing)
 
         if self.from_cp.captured:
-            if self.is_successfull(debriefing):
+            if self.is_successful(debriefing):
                 self.to_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
             else:
                 self.to_cp.base.affect_strength(+self.STRENGTH_INFLUENCE)
         else:
-            if self.is_successfull(debriefing):
+            if self.is_successful(debriefing):
                 self.from_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
             else:
                 self.to_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)

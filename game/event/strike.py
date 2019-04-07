@@ -10,7 +10,7 @@ class StrikeEvent(Event):
     def __str__(self):
         return "Strike / SEAD"
 
-    def is_successfull(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing):
         return True
 
     @property

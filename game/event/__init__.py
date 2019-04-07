@@ -8,3 +8,4 @@ from .insurgentattack import *
 from .convoystrike import *
 from .infantrytransport import *
 from .strike import *
+from .unitsdelivery import UnitsDeliveryEvent

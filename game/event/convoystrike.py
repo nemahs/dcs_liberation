@@ -46,13 +46,13 @@ class ConvoyStrikeEvent(Event):
         super(ConvoyStrikeEvent, self).commit(debriefing)
 
         if self.from_cp.captured:
-            if self.is_successfull(debriefing):
+            if self.is_successful(debriefing):
                 self.to_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
         else:
-            if self.is_successfull(debriefing):
+            if self.is_successful(debriefing):
                 self.from_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
 
-    def is_successfull(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing):
         killed_units = sum([v for k, v in debriefing.destroyed_units.get(self.defender_name, {}).items() if db.unit_task(k) in [PinpointStrike, Reconnaissance]])
         all_units = sum(self.targets.values())
         attackers_success = (float(killed_units) / (all_units + 0.01)) > self.SUCCESS_FACTOR

@@ -7,7 +7,7 @@ class NavalInterceptEvent(Event):
     STRENGTH_INFLUENCE = 0.3
     SUCCESS_RATE = 0.5
 
-    targets = None  # type: db.ShipDict
+    targets: db.ShipDict = None
 
     def __init__(self, game, from_cp: ControlPoint, target_cp: ControlPoint, location: Point, attacker_name: str,
                  defender_name: str):
@@ -46,7 +46,7 @@ class NavalInterceptEvent(Event):
     def global_cp_available(self) -> bool:
         return True
 
-    def is_successfull(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing):
         total_targets = sum(self.targets.values())
         destroyed_targets = 0
         for unit, count in debriefing.destroyed_units.get(self.defender_name, {}).items():
@@ -62,13 +62,13 @@ class NavalInterceptEvent(Event):
         super(NavalInterceptEvent, self).commit(debriefing)
 
         if self.attacker_name == self.game.player:
-            if self.is_successfull(debriefing):
+            if self.is_successful(debriefing):
                 self.to_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
             else:
                 self.departure_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
         else:
             # enemy attacking
-            if self.is_successfull(debriefing):
+            if self.is_successful(debriefing):
                 self.departure_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
             else:
                 self.to_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)

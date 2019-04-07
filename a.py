@@ -1,19 +1,20 @@
+# ! What even is this file???
+# TODO: Give this a MUCH better name
+
 from theater.caucasus import *
 from gen.conflictgen import Conflict
 
 from matplotlib import pyplot
-from matplotlib import lines
 from shapely import geometry
-from shapely.geometry import Polygon
 from descartes.patch import PolygonPatch
+
 
 def put_lines(ls, ax):
     for g in ls.geoms:
         ax.plot([g.xy[0][0], g.xy[0][1]], [g.xy[1][0], g.xy[1][1]])
 
+
 cau = CaucasusTheater()
-#left, heading, dist = Conflict.frontline_vector(cau.soganlug, cau.kutaisi, cau)
-#right = left.point_from_heading(heading, dist)
 
 left, heading = Conflict.frontline_position(cau, cau.soganlug, cau.kutaisi)
 right = left.point_from_heading(heading+90, 80000)

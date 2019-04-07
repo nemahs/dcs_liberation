@@ -26,13 +26,13 @@ class InfantryTransportEvent(Event):
         if for_task == Embarking:
             return "Transport flight"
 
-    def is_successfull(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing):
         return True
 
     def commit(self, debriefing: Debriefing):
         super(InfantryTransportEvent, self).commit(debriefing)
 
-        if self.is_successfull(debriefing):
+        if self.is_successful(debriefing):
             self.to_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
         else:
             self.departure_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)

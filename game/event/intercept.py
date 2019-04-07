@@ -41,7 +41,7 @@ class InterceptEvent(Event):
     def global_cp_available(self) -> bool:
         return True
 
-    def is_successfull(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing):
         units_destroyed = debriefing.destroyed_units.get(self.defender_name, {}).get(self.transport_unit, 0)
         if self.from_cp.captured:
             return units_destroyed > 0
@@ -52,14 +52,14 @@ class InterceptEvent(Event):
         super(InterceptEvent, self).commit(debriefing)
 
         if self.attacker_name == self.game.player:
-            if self.is_successfull(debriefing):
+            if self.is_successful(debriefing):
                 for _, cp in self.game.theater.conflicts(True):
                     cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
             else:
                 self.from_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
         else:
             # enemy attacking
-            if self.is_successfull(debriefing):
+            if self.is_successful(debriefing):
                 self.from_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
             else:
                 self.to_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)

@@ -5,6 +5,9 @@ from game.db import assigned_units_from
 
 
 class BaseAttackEvent(Event):
+    """ Represents an attack on a control point.
+
+    """
     silent = True
     BONUS_BASE = 15
     STRENGTH_RECOVERY = 0.55
@@ -24,7 +27,7 @@ class BaseAttackEvent(Event):
         elif for_task == PinpointStrike:
             return "Ground attack"
 
-    def is_successfull(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing):
         alive_attackers = sum([v for k, v in debriefing.alive_units.get(self.attacker_name, {}).items() if db.unit_task(k) == PinpointStrike])
         alive_defenders = sum([v for k, v in debriefing.alive_units.get(self.defender_name, {}).items() if db.unit_task(k) == PinpointStrike])
         attackers_success = alive_attackers >= alive_defenders
@@ -35,7 +38,7 @@ class BaseAttackEvent(Event):
 
     def commit(self, debriefing: Debriefing):
         super(BaseAttackEvent, self).commit(debriefing)
-        if self.is_successfull(debriefing):
+        if self.is_successful(debriefing):
             if self.departure_cp.captured:
                 self.to_cp.captured = True
                 self.to_cp.ground_objects = []

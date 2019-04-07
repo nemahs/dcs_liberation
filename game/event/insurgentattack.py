@@ -35,7 +35,7 @@ class InsurgentAttackEvent(Event):
     def skip(self):
         self.to_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
 
-    def is_successfull(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing):
         killed_units = sum([v for k, v in debriefing.destroyed_units[self.attacker_name].items() if db.unit_task(k) == PinpointStrike])
         all_units = sum(self.targets.values())
         attackers_success = (float(killed_units) / (all_units + 0.01)) > self.SUCCESS_FACTOR

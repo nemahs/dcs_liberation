@@ -74,7 +74,7 @@ class EventResultsMenu(Menu):
 
         else:
             row = 0
-            if self.event.is_successfull(self.debriefing):
+            if self.event.is_successful(self.debriefing):
                 header("Operation success", "title-green")
             else:
                 header("Operation failed", "title-red")

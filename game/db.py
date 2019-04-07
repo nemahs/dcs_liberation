@@ -1,5 +1,4 @@
 import typing
-import enum
 
 from dcs.vehicles import *
 from dcs.ships import *
@@ -33,12 +32,12 @@ For example, player accessible Hornet is called `FA_18C_hornet`, and MANPAD Igla
 """
 
 """
-Prices for the aircraft. 
+Prices for the aircraft (in millions of dollars). 
 This defines both price for the player (although only aircraft listed in CAP/CAS/Transport/Armor/AirDefense roles will be purchasable) 
 and prioritization for the enemy (i.e. less important bases will receive units with lower price)
 """
 PRICES = {
-    # fighter
+    # Fighters
     MiG_23MLD: 13,
     Su_27: 18,
     Su_33: 22,
@@ -56,7 +55,7 @@ PRICES = {
     F_15C: 20,
     F_14B: 14,
 
-    # bomber
+    # Bombers
     Su_25: 15,
     Su_25T: 13,
     L_39ZA: 10,
@@ -65,13 +64,13 @@ PRICES = {
     A_10A: 18,
     A_10C: 20,
 
-    # heli
+    # Helicopters
     Ka_50: 13,
     SA342M: 8,
     UH_1H: 4,
     Mi_8MT: 5,
 
-    # special
+    # Special
     IL_76MD: 13,
     An_26B: 13,
     An_30M: 13,
@@ -84,7 +83,7 @@ PRICES = {
     E_3A: 8,
     C_130: 8,
 
-    # armor
+    # Armor
     Armor.APC_BTR_80: 16,
     Armor.MBT_T_55: 22,
     Armor.MBT_T_80U: 28,
@@ -108,7 +107,7 @@ PRICES = {
     AirDefence.SAM_SA_9_Strela_1_9P31: 13,
     AirDefence.SAM_SA_8_Osa_9A33: 18,
 
-    # ship
+    # Ships
     CV_1143_5_Admiral_Kuznetsov: 100,
     CVN_74_John_C__Stennis: 100,
     LHA_1_Tarawa: 50,

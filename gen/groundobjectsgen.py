@@ -58,7 +58,7 @@ class GroundObjectsGenerator:
                 if ground_object.is_dead:
                     continue
 
-                unit_type = random.choice(self.game.commision_unit_types(cp, AirDefence))
+                unit_type = random.choice(self.game.commission_unit_types(cp, AirDefence))
                 assert unit_type is not None, "Cannot find unit type for GroundObject defense ({})!".format(cp)
 
                 group = self.m.vehicle_group(

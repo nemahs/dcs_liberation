@@ -1,5 +1,8 @@
 
 class Settings:
+    """ Collection of game settings.
+
+    """
     player_skill = "Good"
     enemy_skill = "Average"
     enemy_vehicle_skill = "Average"

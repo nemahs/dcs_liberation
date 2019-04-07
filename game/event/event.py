@@ -1,4 +1,3 @@
-import typing
 import logging
 
 from dcs.unittype import UnitType
@@ -7,6 +6,7 @@ from dcs.vehicles import AirDefence
 from dcs.unittype import UnitType
 
 from game import *
+from game.operation.operation import Operation
 from theater import *
 from gen.environmentgen import EnvironmentSettings
 from gen.conflictgen import Conflict
@@ -20,23 +20,35 @@ EVENT_DEPARTURE_MAX_DISTANCE = 340000
 
 
 class Event:
-    silent = False
-    informational = False
-    is_awacs_enabled = False
-    ca_slots = 0
+    """ Base class for Events.
+    QUESTION: Can this be made abstract?
+    """
+    silent: bool = False
+    informational: bool = False
+    is_awacs_enabled: bool = False
+    ca_slots: int = 0
 
-    game = None  # type: Game
-    location = None  # type: Point
-    from_cp = None  # type: ControlPoint
-    departure_cp = None  # type: ControlPoint
-    to_cp = None  # type: ControlPoint
+    game = None
+    location: Point = None
+    from_cp: ControlPoint = None
+    departure_cp: ControlPoint = None
+    to_cp: ControlPoint = None
 
-    operation = None  # type: Operation
-    difficulty = 1  # type: int
-    environment_settings = None  # type: EnvironmentSettings
-    BONUS_BASE = 5
+    operation: Operation = None
+    difficulty: int = 1
+    environment_settings: EnvironmentSettings = None
+    BONUS_BASE: int = 5
 
     def __init__(self, game, from_cp: ControlPoint, target_cp: ControlPoint, location: Point, attacker_name: str, defender_name: str):
+        """ Constructor.
+
+        :param game: Game this event belongs to.
+        :param from_cp: CP this event originates from.
+        :param target_cp: CP this event is targeting.
+        :param location: Location of mission operations.
+        :param attacker_name: Name of attacking faction.
+        :param defender_name: Name of defending faction.
+        """
         self.game = game
         self.departure_cp = None
         self.from_cp = from_cp
@@ -47,10 +59,19 @@ class Event:
 
     @property
     def is_player_attacking(self) -> bool:
+        """ Determines if the player is attacking in this event.
+
+            QUESTION: Is having this AND game.is_player_attack redundant?
+        :return: True if the player is attacking in this event.
+        """
         return self.attacker_name == self.game.player
 
     @property
     def enemy_cp(self) -> ControlPoint:
+        """ Returns the CP that belongs to the enemy.
+
+        :return: CP belonging to the enemy.
+        """
         if self.attacker_name == self.game.player:
             return self.to_cp
         else:
@@ -80,6 +101,11 @@ class Event:
         return False
 
     def is_departure_available_from(self, cp: ControlPoint) -> bool:
+        """ Determines if a departure is available from the given control point
+
+        :param cp: Control point to see if departure is available from.
+        :return: True if we can depart from the given CP, False otherwise.
+        """
         if not cp.captured:
             return False
 
@@ -94,22 +120,36 @@ class Event:
     def bonus(self) -> int:
         return int(math.log(self.to_cp.importance + 1, DIFFICULTY_LOG_BASE) * self.BONUS_BASE)
 
-    def is_successfull(self, debriefing: Debriefing) -> bool:
-        return self.operation.is_successfull(debriefing)
+    def is_successful(self, debriefing: Debriefing) -> bool:
+        return self.operation.is_successful(debriefing)
 
     def player_attacking(self, cp: ControlPoint, flights: db.TaskForceDict):
+        """ Sets the event such that the player is attacking or the player is leaving from on an attack.
+            NOTE: This function does multiple things, it needs to be refactored.
+
+        :param cp: CP to depart from is the player is attacking, else the CP to head to.
+        :param flights: Not used.
+        """
         if self.is_player_attacking:
             self.departure_cp = cp
         else:
             self.to_cp = cp
 
     def player_defending(self, cp: ControlPoint, flights: db.TaskForceDict):
+        """ Sets the event such that the player is attacking or the player is leaving from on an attack.
+            NOTE: This is identical to player_attacking.
+
+        :param cp: CP to depart from is the player is attacking, else the CP to head to.
+        :param flights: Not used.
+        """
         if self.is_player_attacking:
             self.departure_cp = cp
         else:
             self.to_cp = cp
 
     def generate(self):
+        """ Generates a mission for this event.
+        """
         self.operation.is_awacs_enabled = self.is_awacs_enabled
         self.operation.ca_slots = self.ca_slots
 
@@ -119,6 +159,9 @@ class Event:
         self.environment_settings = self.operation.environment_settings
 
     def generate_quick(self):
+        """ Generates a quick mission for this event.
+            QUESTION: Can this be combined with the previous function?
+        """
         self.operation.is_awacs_enabled = self.is_awacs_enabled
         self.operation.environment_settings = self.environment_settings
 
@@ -127,6 +170,10 @@ class Event:
         self.operation.current_mission.save(persistency.mission_path_for("liberation_nextturn_quick.miz"))
 
     def commit(self, debriefing: Debriefing):
+        """ Processes debriefing and commits losses to the CPs involved.
+
+        :param debriefing: Debriefing to process.
+        """
         for country, losses in debriefing.destroyed_units.items():
             if country == self.attacker_name:
                 cp = self.departure_cp
@@ -146,33 +193,10 @@ class Event:
                         continue
 
                     if ground_object.matches_string_identifier(object_identifier):
-                        logging.info("cp {} killing ground object {}".format(cp, ground_object.string_identifier))
+                        logging.info("CP {} killing ground object {}".format(cp, ground_object.string_identifier))
                         cp.ground_objects[i].is_dead = True
 
     def skip(self):
+        """ TODO: Implement me!
+        """
         pass
-
-
-class UnitsDeliveryEvent(Event):
-    informational = True
-    units = None  # type: typing.Dict[UnitType, int]
-
-    def __init__(self, attacker_name: str, defender_name: str, from_cp: ControlPoint, to_cp: ControlPoint, game):
-        super(UnitsDeliveryEvent, self).__init__(game=game,
-                                                 location=to_cp.position,
-                                                 from_cp=from_cp,
-                                                 target_cp=to_cp,
-                                                 attacker_name=attacker_name,
-                                                 defender_name=defender_name)
-
-        self.units = {}
-
-    def __str__(self):
-        return "Pending delivery to {}".format(self.to_cp)
-
-    def deliver(self, units: typing.Dict[UnitType, int]):
-        for k, v in units.items():
-            self.units[k] = self.units.get(k, 0) + v
-
-    def skip(self):
-        self.to_cp.base.commision_units(self.units)

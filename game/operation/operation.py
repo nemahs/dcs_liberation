@@ -52,7 +52,7 @@ class Operation:
     def units_of(self, country_name: str) -> typing.Collection[UnitType]:
         return []
 
-    def is_successfull(self, debriefing: Debriefing) -> bool:
+    def is_successful(self, debriefing: Debriefing) -> bool:
         return True
 
     @property
