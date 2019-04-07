@@ -16,3 +16,4 @@ tests/**
 .idea/**/shelf
 .idea/misc.xml
 .idea/*.iml
+.vscode/
