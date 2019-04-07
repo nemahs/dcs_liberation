@@ -1,25 +1,31 @@
 from game.operation.baseattack import BaseAttackOperation
 
-from .event import *
+from .event import Event
+from typing import List, Type
+from userdata.debriefing import Debriefing
+from game import db
+from dcs.task import CAP, CAS, PinpointStrike, MainTask
 from game.db import assigned_units_from
 
 
 class BaseAttackEvent(Event):
     """ Represents an attack on a control point.
-
     """
-    silent = True
-    BONUS_BASE = 15
-    STRENGTH_RECOVERY = 0.55
+    silent: bool = True
+    BONUS_BASE: int = 15
+    STRENGTH_RECOVERY: float = 0.55
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Base attack"
 
     @property
-    def tasks(self):
+    def tasks(self) -> List[Type[MainTask]]:
+        """
+        :return: List of valid task types for this event type.
+        """
         return [CAP, CAS, PinpointStrike]
 
-    def flight_name(self, for_task: typing.Type[Task]) -> str:
+    def flight_name(self, for_task: Type[MainTask]) -> str:
         if for_task == CAP:
             return "Escort flight"
         elif for_task == CAS:

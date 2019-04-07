@@ -444,7 +444,7 @@ ShipDict = typing.Dict[ShipType, int]
 AirDefenseDict = typing.Dict[AirDefence, int]
 
 AssignedUnitsDict = typing.Dict[typing.Type[UnitType], typing.Tuple[int, int]]
-TaskForceDict = typing.Dict[typing.Type[Task], AssignedUnitsDict]
+TaskForceDict = typing.Dict[typing.Type[typing.Union[Task, MainTask]], AssignedUnitsDict]
 
 StartingPosition = typing.Optional[typing.Union[ShipGroup, StaticGroup, Airport, Point]]
 
@@ -457,7 +457,7 @@ def unit_task(unit: UnitType) -> Task:
     assert False
 
 
-def find_unittype(for_task: Task, country_name: str) -> typing.List[UnitType]:
+def find_unittype(for_task: typing.Type[typing.Union[Task, MainTask, AirDefence]], country_name: str) -> typing.List[typing.Union[UnitType, AirDefence]]:
     return [x for x in UNIT_BY_TASK[for_task] if x in UNIT_BY_COUNTRY[country_name]]
 
 

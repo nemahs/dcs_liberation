@@ -1,42 +1,41 @@
 import math
 import random
+from typing import Type, Tuple, List
 
-from dcs.task import *
+from dcs.task import MainTask, CAS, Reconnaissance, PinpointStrike
 
-from game import *
-from game.event import *
-from game.event.frontlineattack import FrontlineAttackEvent
-
-from .event import *
+from game import db
+from userdata.debriefing import Debriefing
+from .event import Event
 from game.operation.convoystrike import ConvoyStrikeOperation
 
-TRANSPORT_COUNT = 4, 6
-DEFENDERS_AMOUNT_FACTOR = 4
+TRANSPORT_COUNT: Tuple[int, int] = (4, 6)
+DEFENDERS_AMOUNT_FACTOR: int = 4
 
 
 class ConvoyStrikeEvent(Event):
-    SUCCESS_FACTOR = 0.6
-    STRENGTH_INFLUENCE = 0.25
+    SUCCESS_FACTOR: float = 0.6
+    STRENGTH_INFLUENCE: float = 0.25
 
-    targets = None  # type: db.ArmorDict
+    targets: db.ArmorDict = None
 
     @property
-    def threat_description(self):
+    def threat_description(self) -> str:
         return ""
 
     @property
-    def tasks(self):
+    def tasks(self) -> List[Type[MainTask]]:
         return [CAS]
 
     @property
     def global_cp_available(self) -> bool:
         return True
 
-    def flight_name(self, for_task: typing.Type[Task]) -> str:
+    def flight_name(self, for_task: Type[MainTask]) -> str:
         if for_task == CAS:
             return "Strike flight"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Convoy Strike"
 
     def skip(self):
@@ -52,7 +51,7 @@ class ConvoyStrikeEvent(Event):
             if self.is_successful(debriefing):
                 self.from_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
 
-    def is_successful(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing) -> bool:
         killed_units = sum([v for k, v in debriefing.destroyed_units.get(self.defender_name, {}).items() if db.unit_task(k) in [PinpointStrike, Reconnaissance]])
         all_units = sum(self.targets.values())
         attackers_success = (float(killed_units) / (all_units + 0.01)) > self.SUCCESS_FACTOR

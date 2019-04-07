@@ -5,7 +5,6 @@ from dcs.task import *
 from dcs.vehicles import AirDefence
 from dcs.unittype import UnitType
 
-from game import *
 from game.operation.operation import Operation
 from theater import *
 from gen.environmentgen import EnvironmentSettings
@@ -15,8 +14,8 @@ from game.db import assigned_units_from, unitdict_from
 from userdata.debriefing import Debriefing
 from userdata import persistency
 
-DIFFICULTY_LOG_BASE = 1.1
-EVENT_DEPARTURE_MAX_DISTANCE = 340000
+DIFFICULTY_LOG_BASE: float = 1.1
+EVENT_DEPARTURE_MAX_DISTANCE: int = 340000
 
 
 class Event:

@@ -1,41 +1,42 @@
 import math
 import random
+from typing import Type, List, Dict
 
-from dcs.task import *
-
-from game import *
-from game.event import *
-from game.event.frontlineattack import FrontlineAttackEvent
+from dcs.task import MainTask, PinpointStrike, CAS, Reconnaissance
+from dcs.unittype import VehicleType
+from game import db
 from game.operation.insurgentattack import InsurgentAttackOperation
-
-from .event import *
+from userdata.debriefing import Debriefing
+from .event import Event
 
 
 class InsurgentAttackEvent(Event):
-    SUCCESS_FACTOR = 0.7
-    TARGET_VARIETY = 2
-    TARGET_AMOUNT_FACTOR = 0.5
-    STRENGTH_INFLUENCE = 0.1
+    SUCCESS_FACTOR: float = 0.7
+    TARGET_VARIETY: int = 2
+    TARGET_AMOUNT_FACTOR: float = 0.5
+    STRENGTH_INFLUENCE: float = 0.1
+
+    targets: Dict[VehicleType, int] = None
 
     @property
-    def threat_description(self):
+    def threat_description(self) -> str:
         return ""
 
     @property
-    def tasks(self):
+    def tasks(self) -> List[Type[MainTask]]:
         return [CAS]
 
-    def flight_name(self, for_task: typing.Type[Task]) -> str:
+    def flight_name(self, for_task: Type[MainTask]) -> str:
         if for_task == CAS:
             return "Ground intercept flight"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Destroy insurgents"
 
     def skip(self):
         self.to_cp.base.affect_strength(-self.STRENGTH_INFLUENCE)
 
-    def is_successful(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing) -> bool:
         killed_units = sum([v for k, v in debriefing.destroyed_units[self.attacker_name].items() if db.unit_task(k) == PinpointStrike])
         all_units = sum(self.targets.values())
         attackers_success = (float(killed_units) / (all_units + 0.01)) > self.SUCCESS_FACTOR

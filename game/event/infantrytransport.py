@@ -1,28 +1,26 @@
-import math
-import random
+from typing import List, Type
 
-from dcs.task import *
-from dcs.vehicles import *
+from dcs.task import Task, Embarking
+from dcs.vehicles import AirDefence
 
 from game import db
 from game.operation.infantrytransport import InfantryTransportOperation
-from theater.conflicttheater import *
 from userdata.debriefing import Debriefing
 
-from .event import *
+from .event import Event
 
 
 class InfantryTransportEvent(Event):
-    STRENGTH_INFLUENCE = 0.3
+    STRENGTH_INFLUENCE: float = 0.3
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Frontline transport troops"
 
     @property
-    def tasks(self):
+    def tasks(self) -> List[Type[Task]]:
         return [Embarking]
 
-    def flight_name(self, for_task: typing.Type[Task]) -> str:
+    def flight_name(self, for_task: Type[Task]) -> str:
         if for_task == Embarking:
             return "Transport flight"
 

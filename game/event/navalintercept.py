@@ -1,11 +1,19 @@
-from game.operation.navalintercept import NavalInterceptionOperation
+import math
+import random
+from typing import Type, List
 
-from .event import *
+from dcs.task import MainTask, CAS, CAP, CargoTransportation
+from game.operation.navalintercept import NavalInterceptionOperation
+from .event import Event
+from game import db
+from theater import ControlPoint, Point
+from gen.conflictgen import Conflict
+from userdata.debriefing import Debriefing
 
 
 class NavalInterceptEvent(Event):
-    STRENGTH_INFLUENCE = 0.3
-    SUCCESS_RATE = 0.5
+    STRENGTH_INFLUENCE: float = 0.3
+    SUCCESS_RATE: float = 0.5
 
     targets: db.ShipDict = None
 
@@ -23,20 +31,20 @@ class NavalInterceptEvent(Event):
         return "Naval intercept"
 
     @property
-    def tasks(self):
+    def tasks(self) -> List[Type[MainTask]]:
         if self.is_player_attacking:
             return [CAS]
         else:
             return [CAP]
 
-    def flight_name(self, for_task: typing.Type[Task]) -> str:
+    def flight_name(self, for_task: Type[MainTask]) -> str:
         if for_task == CAS:
             return "Naval intercept flight"
         elif for_task == CAP:
             return "CAP flight"
 
     @property
-    def threat_description(self):
+    def threat_description(self) -> str:
         s = "{} ship(s)".format(self._targets_count())
         if not self.departure_cp.captured:
             s += ", {} aircraft".format(self.departure_cp.base.scramble_count(self.game.settings.multiplier))
@@ -46,7 +54,7 @@ class NavalInterceptEvent(Event):
     def global_cp_available(self) -> bool:
         return True
 
-    def is_successful(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing) -> bool:
         total_targets = sum(self.targets.values())
         destroyed_targets = 0
         for unit, count in debriefing.destroyed_units.get(self.defender_name, {}).items():
@@ -117,7 +125,7 @@ class NavalInterceptEvent(Event):
         )
 
         strikegroup = self.departure_cp.base.scramble_cas(self.game.settings.multiplier)
-        op.setup(strikegroup=assigned_units_from(strikegroup),
+        op.setup(strikegroup=db.assigned_units_from(strikegroup),
                  interceptors=flights[CAP],
                  targets=self.targets)
 

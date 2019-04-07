@@ -2,7 +2,7 @@ import typing
 
 from dcs.unittype import UnitType
 from theater import ControlPoint
-from . import Event
+from .event import Event
 
 
 class UnitsDeliveryEvent(Event):

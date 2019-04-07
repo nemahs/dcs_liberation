@@ -1,6 +1,11 @@
-from game.event import *
+import math
+from typing import Collection, Type
+
+from .event import Event
+from game import db
 from game.operation.frontlineattack import FrontlineAttackOperation
 from userdata.debriefing import Debriefing
+from dcs.task import MainTask, CAS, CAP, PinpointStrike
 
 
 class FrontlineAttackEvent(Event):
@@ -16,7 +21,7 @@ class FrontlineAttackEvent(Event):
         return "{} vehicles".format(self.to_cp.base.assemble_count())
 
     @property
-    def tasks(self) -> typing.Collection[typing.Type[Task]]:
+    def tasks(self) -> Collection[Type[MainTask]]:
         if self.is_player_attacking:
             return [CAS, CAP]
         else:
@@ -26,7 +31,7 @@ class FrontlineAttackEvent(Event):
     def global_cp_available(self) -> bool:
         return True
 
-    def flight_name(self, for_task: typing.Type[Task]) -> str:
+    def flight_name(self, for_task: Type[MainTask]) -> str:
         if for_task == CAS:
             return "CAS flight"
         elif for_task == CAP:
@@ -81,7 +86,7 @@ class FrontlineAttackEvent(Event):
                  attackers=attackers,
                  strikegroup=flights[CAS],
                  escort=flights[CAP],
-                 interceptors=assigned_units_from(self.to_cp.base.scramble_interceptors(1)))
+                 interceptors=db.assigned_units_from(self.to_cp.base.scramble_interceptors(1)))
 
         self.operation = op
 
@@ -102,8 +107,8 @@ class FrontlineAttackEvent(Event):
 
         op.setup(defenders=defenders,
                  attackers=attackers,
-                 strikegroup=assigned_units_from(self.from_cp.base.scramble_cas(1)),
-                 escort=assigned_units_from(self.from_cp.base.scramble_sweep(1)),
+                 strikegroup=db.assigned_units_from(self.from_cp.base.scramble_cas(1)),
+                 escort=db.assigned_units_from(self.from_cp.base.scramble_sweep(1)),
                  interceptors=flights[CAP])
 
         self.operation = op

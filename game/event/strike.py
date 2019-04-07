@@ -1,42 +1,46 @@
-from game.operation.strike import StrikeOperation
+from typing import Type, List
 
-from .event import *
+from game import db
+from game.operation.strike import StrikeOperation
+from dcs.task import CAP, CAS, SEAD, MainTask
+from .event import Event
+from userdata.debriefing import Debriefing
 
 
 class StrikeEvent(Event):
-    STRENGTH_INFLUENCE = 0.0
-    SINGLE_OBJECT_STRENGTH_INFLUENCE = 0.05
+    STRENGTH_INFLUENCE: float = 0.0
+    SINGLE_OBJECT_STRENGTH_INFLUENCE: float = 0.05
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Strike / SEAD"
 
-    def is_successful(self, debriefing: Debriefing):
+    def is_successful(self, debriefing: Debriefing) -> bool:
         return True
 
     @property
-    def threat_description(self):
+    def threat_description(self) -> str:
         return "{} aircraft + AA".format(self.to_cp.base.scramble_count(self.game.settings.multiplier, CAP))
 
     @property
-    def tasks(self):
+    def tasks(self) -> List[Type[MainTask]]:
         if self.is_player_attacking:
             return [CAP, CAS, SEAD]
         else:
             return [CAP]
 
     @property
-    def ai_banned_tasks(self):
+    def ai_banned_tasks(self) -> List[Type[MainTask]]:
         return [CAS]
 
     @property
-    def player_banned_tasks(self):
+    def player_banned_tasks(self) -> List[Type[MainTask]]:
         return [SEAD]
 
     @property
     def global_cp_available(self) -> bool:
         return True
 
-    def flight_name(self, for_task: typing.Type[Task]) -> str:
+    def flight_name(self, for_task: Type[MainTask]) -> str:
         if for_task == CAP:
             if self.is_player_attacking:
                 return "Escort flight"
@@ -68,6 +72,6 @@ class StrikeEvent(Event):
         op.setup(strikegroup=flights[CAS],
                  sead=flights[SEAD],
                  escort=flights[CAP],
-                 interceptors=assigned_units_from(interceptors))
+                 interceptors=db.assigned_units_from(interceptors))
 
         self.operation = op
